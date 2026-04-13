@@ -90,6 +90,4 @@ DATASET.md           dataset design
 TRAINING.md          training details
 ```
 
-## Submission
 
-[Submission Form](https://forms.gle/9iPeUBHKcdHhuSq67)
