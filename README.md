@@ -85,25 +85,19 @@ The dataset pipeline in [`src/prepare_data.py`](./src/prepare_data.py) performs:
 - removal of HTML / broken markup samples
 - removal of short or low-quality instructions
 - near-duplicate filtering using fuzzy matching
-- balancing across 7 financial topic areas:
-  - interest rates
-  - stocks
-  - personal finance
-  - economic indicators
-  - financial instruments
-  - tax
-  - risk / portfolio
+- balancing across 7 financial topic areas: interest rates, stocks, personal finance, economic indicators, financial instruments, tax, and risk / portfolio
 
 ### Prompt format
 
-Each sample is converted to Alpaca-style instruction tuning text:
+Each sample is converted to Alpaca-style instruction tuning text. The old placeholder-style template looked empty on GitHub, so this section now shows a real example:
 
 ```text
 ### Instruction:
-{instruction}
+What is compound interest?
 
 ### Response:
-{output}
+Compound interest is interest calculated on both the principal and the accumulated
+interest from previous periods. Formula: A = P(1 + r/n)^(nt)
 ```
 
 ### Splits
@@ -345,17 +339,7 @@ If your local `transformers` build requires it for Qwen, add `--trust_remote_cod
 | [`EVALUATION.md`](./EVALUATION.md) | metrics, qualitative comparison, failure cases |
 | [`DEMO_VIDEO`](./DEMO_VIDEO) | demo / Loom placeholder |
 
-## 14. Submission
-
-Assignment submission form:
-
-- https://forms.gle/9iPeUBHKcdHhuSq67
-
-If using a private repository, the assignment document requires adding:
-
-- `uptiq-chaitanya` as a collaborator
-
-## 15. Notes
+## 14. Notes
 
 - The repository is intended to be runnable from the instructions in this README
 - The report components required by the assignment are broken out into separate Markdown files for clarity
