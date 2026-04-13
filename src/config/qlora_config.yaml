@@ -1,0 +1,57 @@
+# QLoRA training configuration for Financial Question Answering on Kaggle T4 (16 GB VRAM)
+
+model:
+  name: Qwen/Qwen3-1.7B          # Base causal LM checkpoint from Hugging Face Hub.
+  trust_remote_code: false      # Qwen3 is supported by recent transformers releases; enable only if your environment needs remote code.
+
+data:
+  train_file: data/train.jsonl   # Relative path to the prepared training split.
+  val_file: data/val.jsonl       # Relative path to the prepared validation split.
+  text_field: text               # JSONL field consumed by TRL SFTTrainer.
+
+training:
+  seed: 42                       # Global random seed for reproducibility.
+  epochs: 3                      # Full fine-tuning epochs required by the project brief.
+  batch_size: 4                  # Per-device train batch size chosen for Kaggle T4 memory limits.
+  eval_batch_size: 4             # Per-device eval batch size.
+  gradient_accumulation_steps: 4 # Effective batch size = 4 * 4 = 16 sequences.
+  learning_rate: 0.0002          # LoRA-friendly learning rate.
+  lr_scheduler: cosine           # Requested cosine learning-rate decay.
+  warmup_ratio: 0.03             # Fraction of training reserved for warmup.
+  max_seq_length: 512            # Sequence cap for Financial QA examples.
+  fp16: true                     # Use FP16 mixed precision on T4.
+  bf16: false                    # T4 does not support BF16 well; keep disabled.
+  gradient_checkpointing: true   # Saves VRAM during QLoRA training.
+  packing: false                 # Keep one Alpaca sample per sequence for simpler supervision.
+  optim: paged_adamw_32bit       # Recommended optimizer for bitsandbytes QLoRA.
+  logging_steps: 10              # Frequent logging is useful on Kaggle notebooks.
+  eval_strategy: epoch           # Evaluate once per epoch.
+  save_strategy: epoch           # Save a checkpoint once per epoch.
+  save_total_limit: 1            # Keep only the best/most recent checkpoint to save disk.
+  weight_decay: 0.0              # No extra weight decay for this LoRA setup.
+  max_grad_norm: 1.0             # Standard gradient clipping for stability.
+  dataloader_pin_memory: false   # Conservative setting for notebook environments.
+  report_to: none                # Disable external experiment tracking by default.
+
+quantization:
+  load_in_4bit: true             # Enable 4-bit base model loading.
+  quant_type: nf4                # NF4 quantization requested in the project brief.
+  compute_dtype: float16         # Use FP16 compute on Kaggle T4.
+  use_double_quant: true         # Nested quantization for extra memory efficiency.
+
+lora:
+  r: 16                          # LoRA rank.
+  alpha: 32                      # LoRA scaling factor.
+  dropout: 0.05                  # LoRA dropout.
+  target_modules:                # Attention projections to adapt.
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+  task_type: CAUSAL_LM           # PEFT task type for causal language modeling.
+
+hub:
+  push_if_token_available: true  # Push adapters if HF_TOKEN is present.
+  repo_id: null                  # Optional explicit repo id, e.g. your-username/qwen3-finance-qa-qlora.
+  repo_name: qwen3-finance-qa-qlora # Fallback repo name if repo_id is not set.
+  private: false                 # Set true if you want the pushed repo to be private.
